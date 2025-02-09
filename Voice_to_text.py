@@ -63,11 +63,13 @@ def continuous_transcription_and_translation():
                     english_text = result.get("text", "").strip()
 
                     if english_text:
-                        print("(English):", english_text)
+                        transcriptions = {"english": english_text}
 
                         # Translate to French
                         french_translation = translate_to_french(english_text)
-                        print("(French):", french_translation)
+                        transcriptions["french"] = french_translation
+
+                        yield transcriptions
 
         except KeyboardInterrupt:
             print("\nTranscription stopped.")
@@ -76,4 +78,6 @@ def continuous_transcription_and_translation():
 
 # Run the transcription and translation
 if __name__ == "__main__":
-    continuous_transcription_and_translation()
+    for transcriptions in continuous_transcription_and_translation():
+        print(f"English: {transcriptions['english']}")
+        print(f"French: {transcriptions['french']}") 

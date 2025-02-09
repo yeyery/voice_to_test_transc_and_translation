@@ -22,9 +22,13 @@ def main() -> None:
 
     text_widget.pack()
 
-    
-    text_widget.insert(tk.END, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n")
-        
+    while True:
+        user_input = input("enter m: ")
+        if user_input == "m":
+            text_widget.insert(tk.END, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n")
+            text_widget.see("end")
+        else:
+            break
         
     # run the app
     root.mainloop()
