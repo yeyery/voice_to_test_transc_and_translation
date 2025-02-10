@@ -33,7 +33,7 @@ def translate_to_french(english_text):
 
 # Function to transcribe and translate audio continuously
 def continuous_transcription_and_translation():
-    print("Starting offline transcription and translation... Press Ctrl+C to stop.")
+    # print("Starting offline transcription and translation... Press Ctrl+C to stop.")
 
     samplerate = 16000  # Required sampling rate for Whisper
     max_buffer_size = samplerate * 10  # Limit buffer size to 10 seconds

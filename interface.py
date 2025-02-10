@@ -1,5 +1,14 @@
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
+from Voice_to_text import continuous_transcription_and_translation
+
+def update_translation(text_widget: ScrolledText, root: tk.Tk) -> None:
+    transcriptions = next(continuous_transcription_and_translation())
+    text_widget.insert(tk.END, f"En: {transcriptions['english']}\n")
+    text_widget.insert(tk.END, f"Fn: {transcriptions['french']}\n")
+    text_widget.see("end")
+
+    root.after(2000, update_translation, text_widget, root)
 
 def main() -> None:
 
@@ -22,13 +31,7 @@ def main() -> None:
 
     text_widget.pack()
 
-    while True:
-        user_input = input("enter m: ")
-        if user_input == "m":
-            text_widget.insert(tk.END, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n")
-            text_widget.see("end")
-        else:
-            break
+    update_translation(text_widget, root)
         
     # run the app
     root.mainloop()
