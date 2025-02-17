@@ -3,13 +3,13 @@ from tkinter.scrolledtext import ScrolledText
 import threading
 from Vosk_to_text import continuous_transcription
 
-def update_translation(text_widget: ScrolledText, root: tk.Tk) -> None:
-    transcriptions = next(continuous_transcription())
-    text_widget.insert(tk.END, f"En: {transcriptions['english']}\n")
-    text_widget.insert(tk.END, f"Fn: {transcriptions['french']}\n")
+def update_translation(generator, text_widget: ScrolledText, root: tk.Tk) -> None:
+    transcriptions = next(generator)
+    text_widget.insert(tk.END, f"{transcriptions}\n")
+    # text_widget.insert(tk.END, f"Fn: {transcriptions['french']}\n")
     text_widget.see("end")
 
-    root.after(1500, update_translation, text_widget, root)
+    root.after(1000, update_translation, generator, text_widget, root)
 
 def main() -> None:
 
@@ -32,7 +32,9 @@ def main() -> None:
 
     text_widget.pack()
 
-    threading.Thread(target=update_translation, args=(text_widget, root)).start()
+    generator = continuous_transcription()
+
+    root.after(1000, update_translation, generator, text_widget, root)
 
     # run the app
     root.mainloop()
