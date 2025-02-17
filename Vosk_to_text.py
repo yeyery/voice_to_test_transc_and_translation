@@ -38,23 +38,22 @@ def translate_to_french(english_text):
     return "No translation available"
 
 
-def main():
+def continuous_transcription():
     """Main function to capture audio and recognize speech in real-time"""
     with sd.RawInputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype="int16", callback=callback):
-        print("Listening... Speak into the microphone.")
         
         while True:
             data = audio_queue.get()
             if recognizer.AcceptWaveform(data):  # Process audio in chunks
                 result = json.loads(recognizer.Result())
                 if result["text"] != "":
-                    print("(English):", result["text"])
+                    transcriptions = {}
+
+                    transcriptions["english"] = result["text"]
 
                     # Translate to French
-                    french_translation = translate_to_french(result["text"])
-                    print("(French):", french_translation)
+                    transcriptions["french"] = translate_to_french(result["text"])
+                    yield transcriptions
 
-try:
-    main()
-except KeyboardInterrupt:
-    print("\nExiting...")
+if __name__ == "__main__":
+    continuous_transcription()

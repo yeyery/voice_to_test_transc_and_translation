@@ -1,14 +1,15 @@
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
-from Voice_to_text import continuous_transcription_and_translation
+import threading
+from Vosk_to_text import continuous_transcription
 
 def update_translation(text_widget: ScrolledText, root: tk.Tk) -> None:
-    transcriptions = next(continuous_transcription_and_translation())
+    transcriptions = next(continuous_transcription())
     text_widget.insert(tk.END, f"En: {transcriptions['english']}\n")
     text_widget.insert(tk.END, f"Fn: {transcriptions['french']}\n")
     text_widget.see("end")
 
-    root.after(2000, update_translation, text_widget, root)
+    root.after(1500, update_translation, text_widget, root)
 
 def main() -> None:
 
@@ -31,8 +32,8 @@ def main() -> None:
 
     text_widget.pack()
 
-    update_translation(text_widget, root)
-        
+    threading.Thread(target=update_translation, args=(text_widget, root)).start()
+
     # run the app
     root.mainloop()
 
