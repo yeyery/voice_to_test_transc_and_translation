@@ -2,6 +2,7 @@ from faster_whisper import WhisperModel
 import queue
 import numpy as np
 import sounddevice as sd
+import threading
 from transformers import MarianMTModel, MarianTokenizer
 
 MODEL_SIZE = "tiny"
@@ -9,9 +10,9 @@ MODEL_SIZE = "tiny"
 MODEL = WhisperModel(MODEL_SIZE, device="cpu", compute_type="int8")
 
 # Load MarianMT for English-to-French translation
-marian_model_name = "Helsinki-NLP/opus-mt-en-fr"
-tokenizer = MarianTokenizer.from_pretrained(marian_model_name)
-translator_model = MarianMTModel.from_pretrained(marian_model_name)
+# marian_model_name = "Helsinki-NLP/opus-mt-en-fr"
+# tokenizer = MarianTokenizer.from_pretrained(marian_model_name)
+# translator_model = MarianMTModel.from_pretrained(marian_model_name)
 
 # Queue to hold audio chunks
 audio_queue = queue.Queue()
@@ -65,10 +66,6 @@ def continuous_transcription_and_translation():
 
                     if english_text:
                         transcriptions = {"english": english_text}
-
-                        # Translate to French
-                        french_translation = translate_to_french(english_text)
-                        transcriptions["french"] = french_translation
 
                         yield transcriptions
 
