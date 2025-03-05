@@ -19,19 +19,20 @@ class MainApp(App):
 
         layout.add_widget(Widget(size_hint_y=None, height=40))  
 
+        # Enable horizontal scrolling and disable vertical scrolling
         self.scroll_view = ScrollView(size_hint=(1, 1), size=screen_res, do_scroll_x=True, do_scroll_y=False)
 
         self.text_label = Label(
             text="",
-            size_hint_x=None,  # Allow width expansion
-            height=320,
+            size_hint_x=None,  # Allow the label to expand in width
+            height=320,  # Fixed height
             text_size=(None, None),  # Prevent forced wrapping
             font_size=47,
             halign="left",
             valign="middle"
         )
 
-        # Needed to align the text
+        # Bind texture size to adjust width dynamically
         self.text_label.bind(texture_size=self.update_label_size)
         self.text_label.bind(size=self.scroll_right)
 
@@ -56,14 +57,17 @@ class MainApp(App):
             pass
 
     def update_label_size(self, instance, value):
-        instance.width = instance.texture_size[0]  # Expand width dynamically
+        """ Dynamically expand label width when new text is added """
+        new_width = instance.texture_size[0]
+        instance.width = max(new_width, Window.size[0] * 0.9)  # Ensure text grows, but not too much
 
     def scroll_right(self, instance, value):
-        # Keep scrolling to the right when new text is added
-        self.scroll_view.scroll_x = 1
+        """ Automatically scroll to the right as text expands """
+        self.scroll_view.scroll_x = 1  # Always keep scrolling at the end
 
     def add_text(self, text: str) -> None:
-        self.text_label.text = (self.text_label.text + f" {text}")[-5000:]  # Remove forced newlines
+        """ Add text dynamically and limit to 5000 characters while keeping whole words intact """
+        self.text_label.text = (self.text_label.text + f" {text}")[-5000:].lstrip()
 
 if __name__ == "__main__":
     MainApp().run()
