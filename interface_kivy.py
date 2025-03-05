@@ -13,29 +13,27 @@ Window.fullscreen = True
 
 class MainApp(App):
     def build(self):
-
         screen_res = (1480, 320)
 
         layout = BoxLayout(orientation='vertical', size=screen_res, size_hint=(1,1))
 
         layout.add_widget(Widget(size_hint_y=None, height=40))  
 
-        self.scroll_view = ScrollView(size_hint=(1, 1), size=screen_res)
+        self.scroll_view = ScrollView(size_hint=(1, 1), size=screen_res, do_scroll_x=True, do_scroll_y=False)
 
         self.text_label = Label(
             text="",
-            size_hint_y=None,
-            width=320,
-            text_size=(320, None),
+            size_hint_x=None,  # Allow width expansion
+            height=320,
+            text_size=(None, None),  # Prevent forced wrapping
             font_size=47,
             halign="left",
-            valign="top"
+            valign="middle"
         )
 
-        # needed to align the text
-        self.text_label.bind(texture_size=self.text_label.setter("size"))
-        self.text_label.bind(size=self.update_text_size)
-        self.text_label.bind(size=self.scroll_bottom)
+        # Needed to align the text
+        self.text_label.bind(texture_size=self.update_label_size)
+        self.text_label.bind(size=self.scroll_right)
 
         self.scroll_view.add_widget(self.text_label)
 
@@ -57,18 +55,15 @@ class MainApp(App):
         except StopIteration:
             pass
 
-    def update_text_size(self, instance, value):
-        instance.text_size = (instance.width, None)
+    def update_label_size(self, instance, value):
+        instance.width = instance.texture_size[0]  # Expand width dynamically
 
-    def scroll_bottom(self, instance, value):
-        if self.text_label.height > self.scroll_view.height:
-            self.scroll_view.scroll_y = 0
-    
+    def scroll_right(self, instance, value):
+        # Keep scrolling to the right when new text is added
+        self.scroll_view.scroll_x = 1
+
     def add_text(self, text: str) -> None:
-        self.text_label.text += f"{text}\n"
-        # make it so that the maximum string size is 5000 chracters
-        self.text_label.text += self.text_label.text[-5000:]
+        self.text_label.text = (self.text_label.text + f" {text}")[-5000:]  # Remove forced newlines
 
-    
 if __name__ == "__main__":
     MainApp().run()
