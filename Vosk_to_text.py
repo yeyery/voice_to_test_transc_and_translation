@@ -67,7 +67,7 @@ def transcribe_audio():
 
 def continuous_transcription():
     """Main function to capture audio and recognize speech in real-time"""
-    with sd.RawInputStream(samplerate=SAMPLE_RATE,blocksize=BLOCK_SIZE,channels=CHANNELS,dtype="int16",callback=callback):
+    with sd.RawInputStream(samplerate=SAMPLE_RATE,blocksize=BLOCK_SIZE,channels=CHANNELS,dtype="int16",callback=callback, latency="high"):
         threading.Thread(target=transcribe_audio, daemon=True).start()
 
         while True:
