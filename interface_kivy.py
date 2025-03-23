@@ -11,14 +11,13 @@ from Vosk_to_text import continuous_transcription
 
 Window.size = (1480, 320)
 Window.clearcolor = (17/255, 24/255, 39/255, 1)
-Window.fullscreen = True
+Window.fullscreen = False
+Window.show_cursor = False
 
 class MainApp(App):
     def build(self):
 
         root = BoxLayout(orientation='horizontal')
-
-        screen_res = (1480, 320)
 
         text_layout = BoxLayout(orientation='horizontal', size=(1300, 320), size_hint=(0.7, None))
 
