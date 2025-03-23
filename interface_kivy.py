@@ -78,7 +78,7 @@ class MainApp(App):
     
     def add_text(self, text: str) -> None:
         self.text_label.text += f"{text} "
-        # make it so that the maximum string size is 5000 chracters
+        # make it so that the maximum string size is 200 chracters
         self.text_label.text = self.text_label.text[-200:]
 
     
