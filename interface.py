@@ -1,12 +1,14 @@
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
+from PIL import Image, ImageTk
 from Vosk_to_text import continuous_transcription
 
-def update_translation(generator, text_widget: ScrolledText, root: tk.Tk) -> None:
+def update_translation(generator, text_widget: tk.Label, root: tk.Tk) -> None:
     transcriptions = next(generator)
-    text_widget.insert(tk.END, f"{transcriptions}\n")
-    # text_widget.insert(tk.END, f"Fn: {transcriptions['french']}\n")
-    text_widget.see("end")
+    current_text = text_widget["text"]
+    update_text = current_text+f"{transcriptions}. "
+    update_text = update_text[-200:]
+    text_widget.config(text=update_text)
 
     root.after(1000, update_translation, generator, text_widget, root)
 
@@ -18,27 +20,43 @@ def main() -> None:
     # destroy the app when the escape button is hit
     root.bind("<Escape>", lambda _: root.destroy())
 
+    # remove the cursor
+    root.config(cursor="none")
+
     # full screen the app
-    root.attributes("-fullscreen", True)
+    root.attributes("-fullscreen", False)
 
     # make the demensions of your app the same as the demensions of your screen
-    root.geometry('%dx%d+0+0' % (1480,320))
+    root.geometry('%dx%d' % (1480,320))
 
     # make background black
     root.configure(background='#111827')
 
-    text_widget = ScrolledText(root, 
-                               height=320, 
-                               width=1480,
-                               font=("Helvetica", 45),
-                               bg='#111827',
-                               fg="#F3F4F6",
-                               wrap="word")
+    main_frame = tk.Frame(root, bg='#111827')
+    main_frame.pack(fill=tk.BOTH, expand=True)
 
-    text_widget.pack(expand=True, fill="both")
+    text_widget = tk.Label(
+        main_frame,
+        text="",
+        height=320,
+        wraplength=1250,
+        justify=tk.LEFT,
+        font=("Helvetica", 40),
+        bg='#111827',
+        fg="#F3F4F6",
+        anchor="nw"
+    )
 
-    # get rid of the scroll bar
-    text_widget.vbar.pack_forget()
+    text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=False, padx=10, pady=10)
+
+    image_frame = tk.Frame(main_frame, bg='#111827', width=200)
+    image_frame.pack(side=tk.RIGHT, anchor="se", padx=10, pady=10)
+
+    logo = Image.open("./pictures/NSCC_logo_backgroundless.png")
+    logo = logo.resize((200, 60))
+    logo_tk = ImageTk.PhotoImage(logo)
+    image_label = tk.Label(image_frame, image=logo_tk, bg='#111827')
+    image_label.pack()
 
     generator = continuous_transcription()
 
