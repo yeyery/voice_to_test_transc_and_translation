@@ -32,7 +32,7 @@ class MainApp(App):
             text_size=(320, None),
             font_size=47,
             halign="left",
-            valign="top"
+            valign="middle"
         )
 
         # needed to align the text
@@ -69,18 +69,19 @@ class MainApp(App):
         except StopIteration:
             pass
 
-    def update_text_size(self, instance, value):
-        instance.text_size = (instance.width, None)
+    def update_label_size(self, instance, value):
+        """ Dynamically expand label width when new text is added """
+        new_width = instance.texture_size[0]
+        instance.width = max(new_width, Window.size[0] * 0.9)  # Ensure text grows, but not too much
 
-    def scroll_bottom(self, instance, value):
-        if self.text_label.height > self.scroll_view.height:
-            self.scroll_view.scroll_y = 0
-    
+    def scroll_right(self, instance, value):
+        """ Automatically scroll to the right as text expands """
+        self.scroll_view.scroll_x = 1  # Always keep scrolling at the end
+
     def add_text(self, text: str) -> None:
         self.text_label.text += f"{text} "
         # make it so that the maximum string size is 200 chracters
         self.text_label.text = self.text_label.text[-200:]
 
-    
 if __name__ == "__main__":
     MainApp().run()
