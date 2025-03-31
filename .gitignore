@@ -2,6 +2,5 @@ venv
 vosk-model-small-en-us-0.15
 __pycache__
 swears.txt
-pictures
 Open_Sans
 fonts
