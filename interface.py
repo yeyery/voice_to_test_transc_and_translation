@@ -1,13 +1,12 @@
 import tkinter as tk
-from tkinter.scrolledtext import ScrolledText
 from PIL import Image, ImageTk
 from Vosk_to_text import continuous_transcription
 
 def update_translation(generator, text_widget: tk.Label, root: tk.Tk) -> None:
     transcriptions = next(generator)
     current_text = text_widget["text"]
-    update_text = current_text+f"{transcriptions}. "
-    update_text = update_text[-200:]
+    update_text = f"{transcriptions}. "+current_text
+    update_text = update_text[:1000]
     text_widget.config(text=update_text)
 
     root.after(1000, update_translation, generator, text_widget, root)
