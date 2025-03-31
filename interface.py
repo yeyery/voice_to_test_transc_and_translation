@@ -6,7 +6,7 @@ def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
     transcriptions = next(generator)
     # end-1c means read to the end and remove a chracter. the \n is the last character
     current_text = text_widget.get("1.0", 'end-1c')
-    current_text = current_text[:1000]
+    current_text = current_text[:200]
     text_widget.delete("1.0", "end")
     text_widget.insert("end", f"{transcriptions}. ", "bold")
     text_widget.insert("end", f"{current_text}")
@@ -38,7 +38,7 @@ def main() -> None:
 
     text_widget = tk.Text(
         main_frame,
-        height=320,
+        height=300,
         width=1250,
         font=("Helvetica", 40),
         bg='#111827',
@@ -51,9 +51,9 @@ def main() -> None:
     # configure a bold option
     text_widget.tag_configure("bold", font="Helvetica 40 bold")
     # places the widget in the GUI
-    text_widget.place(x=0, y=0, height=320, width=1250)
+    text_widget.place(x=0, y=10, height=300, width=1250)
     # stop user input
-    text_widget.config(state="disabled")
+    # text_widget.config(state="disabled")
 
     image_frame = tk.Frame(main_frame, bg='#111827', width=200)
     image_frame.pack(side=tk.RIGHT, anchor="se", padx=10, pady=10)
