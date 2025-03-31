@@ -2,12 +2,14 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from Vosk_to_text import continuous_transcription
 
-def update_translation(generator, text_widget: tk.Label, root: tk.Tk) -> None:
+def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
     transcriptions = next(generator)
-    current_text = text_widget["text"]
-    update_text = f"{transcriptions}. "+current_text
-    update_text = update_text[:1000]
-    text_widget.config(text=update_text)
+    # end-1c means read to the end and remove a chracter. the \n is the last character
+    current_text = text_widget.get("1.0", 'end-1c')
+    current_text = current_text[:1000]
+    text_widget.delete("1.0", "end")
+    text_widget.insert("end", f"{transcriptions}. ", "bold")
+    text_widget.insert("end", f"{current_text}")
 
     root.after(1000, update_translation, generator, text_widget, root)
 
@@ -34,19 +36,24 @@ def main() -> None:
     main_frame = tk.Frame(root, bg='#111827')
     main_frame.pack(fill=tk.BOTH, expand=True)
 
-    text_widget = tk.Label(
+    text_widget = tk.Text(
         main_frame,
-        text="",
         height=320,
-        wraplength=1250,
-        justify=tk.LEFT,
+        width=1250,
         font=("Helvetica", 40),
         bg='#111827',
         fg="#F3F4F6",
-        anchor="nw"
+        bd=0,
+        highlightthickness=0,
+        wrap="word",
     )
 
-    text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=False, padx=10, pady=10)
+    # configure a bold option
+    text_widget.tag_configure("bold", font="Helvetica 40 bold")
+    # places the widget in the GUI
+    text_widget.place(x=0, y=0, height=320, width=1250)
+    # stop user input
+    text_widget.config(state="disabled")
 
     image_frame = tk.Frame(main_frame, bg='#111827', width=200)
     image_frame.pack(side=tk.RIGHT, anchor="se", padx=10, pady=10)
