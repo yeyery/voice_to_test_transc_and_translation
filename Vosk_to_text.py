@@ -3,6 +3,7 @@ import queue
 import vosk
 from transformers import MarianMTModel, MarianTokenizer
 import threading
+import time
 
 # Set parameters
 MODEL_PATH = "./vosk-model-small-en-us-0.15/"  # Change if using a different model
@@ -66,7 +67,13 @@ def transcribe_audio():
 
 
 def continuous_transcription():
-    """Main function to capture audio and recognize speech in real-time"""
+    """
+    Main function to capture audio and recognize speech in real-time
+    """
+
+    last_time = time.time()
+    silence_threshold = 3000
+
     with sd.RawInputStream(samplerate=SAMPLE_RATE,blocksize=BLOCK_SIZE,channels=CHANNELS,dtype="int16",callback=callback, latency="high"):
         threading.Thread(target=transcribe_audio, daemon=True).start()
 
