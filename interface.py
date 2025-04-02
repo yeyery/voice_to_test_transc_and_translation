@@ -12,7 +12,7 @@ def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
         current_text = text_widget.get("1.0", 'end-1c')
         current_text = current_text[:200]
         text_widget.delete("1.0", "end")
-        text_widget.insert("end", f"{transcriptions}. ", "bold")
+        text_widget.insert("end", f"{transcriptions}.", "bold")
         text_widget.insert("end", f"{current_text}")
 
     root.after(1000, update_translation, generator, text_widget, root)
@@ -52,6 +52,8 @@ def main() -> None:
         wrap="word",
     )
 
+    #remove cursor
+    text_widget.config(cursor="none")
     # configure a bold option
     text_widget.tag_configure("bold", font="Helvetica 40 bold")
     # places the widget in the GUI
