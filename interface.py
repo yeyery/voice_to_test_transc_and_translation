@@ -3,10 +3,17 @@ from PIL import Image, ImageTk
 from Vosk_to_text import continuous_transcription
 
 def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
+    """
+    This function retreive the last transcription from Vosk_to_text.py and
+    insert it into the GUI
+    """
 
+    # generator returns and iterator so use next to get the latest transcription
     transcriptions = next(generator)
+   
     # end-1c means read to the end and remove a chracter. the \n is the last character
 
+    # TODO: This was going to be for the timeout function
     if transcriptions == "SILENCE":
         text_widget.delete("1.0", "end")
     else:
@@ -17,6 +24,7 @@ def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
         text_widget.insert("end", f"{transcriptions}. ", "bold")
         text_widget.insert("end", f"{current_text}")
 
+    # rerun this function after 1 second
     root.after(1000, update_translation, generator, text_widget, root)
 
 def main() -> None:
