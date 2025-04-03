@@ -3,6 +3,7 @@ from PIL import Image, ImageTk
 from Vosk_to_text import continuous_transcription
 
 def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
+
     transcriptions = next(generator)
     # end-1c means read to the end and remove a chracter. the \n is the last character
 
@@ -10,9 +11,10 @@ def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
         text_widget.delete("1.0", "end")
     else:
         current_text = text_widget.get("1.0", 'end-1c')
+        # keep only the first 200 characters
         current_text = current_text[:200]
         text_widget.delete("1.0", "end")
-        text_widget.insert("end", f"{transcriptions}.", "bold")
+        text_widget.insert("end", f"{transcriptions}. ", "bold")
         text_widget.insert("end", f"{current_text}")
 
     root.after(1000, update_translation, generator, text_widget, root)
@@ -37,6 +39,7 @@ def main() -> None:
     # make background black
     root.configure(background='#111827')
 
+    # set the background color
     main_frame = tk.Frame(root, bg='#111827')
     main_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -47,6 +50,7 @@ def main() -> None:
         font=("Helvetica", 40),
         bg='#111827',
         fg="#F3F4F6",
+        # bd and highlightthickness is to remove the borders around the widget
         bd=0,
         highlightthickness=0,
         wrap="word",
@@ -64,8 +68,10 @@ def main() -> None:
     image_frame = tk.Frame(main_frame, bg='#111827', width=200)
     image_frame.pack(side=tk.RIGHT, anchor="se", padx=10, pady=10)
 
+    # load the image
     logo = Image.open("./pictures/NSCC_logo_backgroundless.png")
     logo = logo.resize((200, 60))
+    # make it ok for Tkinter
     logo_tk = ImageTk.PhotoImage(logo)
     image_label = tk.Label(image_frame, image=logo_tk, bg='#111827')
     image_label.pack()

@@ -36,6 +36,10 @@ def callback(indata, frames, time, status):
         audio_queue.put(bytes(indata))
         audio_buffer.clear()
 
+def store_time(latency):
+    with open("times.txt", "a") as file:
+        file.write(f"{latency}\n")
+
 # Function to translate text offline
 def translate_to_french(english_text):
     english_text = english_text.strip()  # Remove extra spaces
