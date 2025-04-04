@@ -27,7 +27,9 @@ result_queue = queue.Queue()
 audio_buffer = bytearray()
 
 def callback(indata, frames, time, status):
-    """Callback function to receive audio data from SoundDevice"""
+    """
+    Callback function to receive audio data from SoundDevice
+    """
     if status:
         print(f"SoundDevice Error: {status}")
 
@@ -36,12 +38,12 @@ def callback(indata, frames, time, status):
         audio_queue.put(bytes(indata))
         audio_buffer.clear()
 
-def store_time(latency):
-    with open("times.txt", "a") as file:
-        file.write(f"{latency}\n")
-
 # Function to translate text offline
 def translate_to_french(english_text):
+    """
+    This function will translate the transcription from french to english
+    """
+
     english_text = english_text.strip()  # Remove extra spaces
     if english_text:  # Only process non-empty text
         tokenized_text = tokenizer(english_text, return_tensors="pt", padding=True)
@@ -51,9 +53,17 @@ def translate_to_french(english_text):
     return "No translation available"
 
 def censor_text(text: str):
+    """
+    This function will take in the produced transcription and censor any
+    swears present
+    """
+
     with open("./swears.txt", "r") as file:
+        # split by line
         lines = file.read().split("\n")
+        # pop the empty string at the end
         lines.pop()
+        # split by space
         words = text.split()
         return " ".join("***" if word.lower() in lines else word for word in words)
 
@@ -62,7 +72,8 @@ def transcribe_audio():
         try:
             data = audio_queue.get_nowait()
             if len(data) >= BLOCK_SIZE:
-                if recognizer.AcceptWaveform(data):  # Process audio in chunks
+                # this if statement is looking to see if there is silence
+                if recognizer.AcceptWaveform(data):  
                     result = recognizer.Result().split('"text" : ')[-1][:-2].strip("\"")
                     if result != "":
                         result_queue.put(censor_text(result))
@@ -74,9 +85,6 @@ def continuous_transcription():
     """
     Main function to capture audio and recognize speech in real-time
     """
-
-    last_time = time.time()
-    silence_threshold = 3000
 
     with sd.RawInputStream(samplerate=SAMPLE_RATE,blocksize=BLOCK_SIZE,channels=CHANNELS,dtype="int16",callback=callback, latency="high"):
         threading.Thread(target=transcribe_audio, daemon=True).start()
