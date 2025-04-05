@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from Vosk_to_text import continuous_transcription
+import word2number as w2n
 
 def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
     """

@@ -3,7 +3,7 @@ import queue
 import vosk
 from transformers import MarianMTModel, MarianTokenizer
 import threading
-import time
+from word2number import w2n
 
 # Set parameters
 MODEL_PATH = "./vosk-model-small-en-us-0.15/"  # Change if using a different model
@@ -52,6 +52,45 @@ def translate_to_french(english_text):
         return french_translation
     return "No translation available"
 
+
+def get_number(text: str):
+    """
+    This function will take in a transcribe sentance and replace the spelled out
+    numbers with actual numbers
+    """
+
+    words = tuple(text.split())
+    output = []
+    i = 0
+    
+    # use while because indexs may be changing
+    while i < len(words):
+        j = i
+        num = None
+        pharse = []
+        while j < len(words):
+            pharse.append(words[j])
+            try:
+                # this needs to be here to see if the current word is a number
+                w2n.word_to_num(words[j])
+                # convert list to str
+                num = w2n.word_to_num(" ".join(pharse))
+
+                last_index = j
+                j += 1
+            except:
+                break
+        if num:
+            output.append(str(num))
+            i = last_index + 1
+        else:
+            output.append(words[i])
+            i += 1
+
+    return " ".join(output)
+    
+
+
 def censor_text(text: str):
     """
     This function will take in the produced transcription and censor any
@@ -64,8 +103,9 @@ def censor_text(text: str):
         # pop the empty string at the end
         lines.pop()
         # split by space
-        words = text.split()
+        words = tuple(text.split())
         return " ".join("***" if word.lower() in lines else word for word in words)
+
 
 def transcribe_audio():
     while True:
@@ -76,7 +116,7 @@ def transcribe_audio():
                 if recognizer.AcceptWaveform(data):  
                     result = recognizer.Result().split('"text" : ')[-1][:-2].strip("\"")
                     if result != "":
-                        result_queue.put(censor_text(result))
+                        result_queue.put(censor_text(get_number(result)))
         except queue.Empty:
             continue
 
