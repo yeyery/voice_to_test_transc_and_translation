@@ -6,11 +6,13 @@ import vosk
 import threading
 from word2number import w2n
 
-# Set parameters
+# set the model
 MODEL_PATH = "./vosk-model-small-en-us-0.15/"  # Change if using a different model
+
+# audio recording parameters
 SAMPLE_RATE = 16000  # Vosk works best at 16kHz
 CHANNELS = 1  # Use mono audio for speech recognition
-BLOCK_SIZE = 1024
+CHUNK_SIZE = 1024 # how many frames in a chunk
 
 # Load Vosk model
 model = vosk.Model(MODEL_PATH)
@@ -21,25 +23,21 @@ recognizer = vosk.KaldiRecognizer(model, SAMPLE_RATE)
 # tokenizer = MarianTokenizer.from_pretrained(marian_model_name)
 # translator_model = MarianMTModel.from_pretrained(marian_model_name)
 
-# Queue to store audio data
+# Queue to store audio and transcribe data
 audio_queue = queue.Queue()
 result_queue = queue.Queue()
 
-audio_buffer = bytearray()
-
 def callback(indata, frames, time, status):
     """
-    Callback function to receive audio data from SoundDevice
+    This function is required to continuously process audio data
     """
     if status:
         print(f"SoundDevice Error: {status}")
 
-    audio_buffer.extend(indata)
-    if len(audio_buffer) >= BLOCK_SIZE:
-        audio_queue.put(bytes(indata))
-        audio_buffer.clear()
+    # input audio data into the queue
+    audio_queue.put(bytes(indata))
 
-# Function to translate text offline
+# Function to translate text offline (UNUSED)
 def translate_to_french(english_text):
     """
     This function will translate the transcription from french to english
@@ -60,6 +58,7 @@ def get_number(text: str):
     numbers with actual numbers
     """
 
+    # transform to a tuple for faster iteration
     words = tuple(text.split())
     output = []
     i = 0
@@ -111,15 +110,16 @@ def censor_text(text: str):
 def transcribe_audio():
     while True:
         try:
+            # get the most recent audio data
             data = audio_queue.get_nowait()
-            if len(data) >= BLOCK_SIZE:
-                # this if statement is looking to see if there is silence
-                if recognizer.AcceptWaveform(data):  
-                    result = recognizer.Result().split('"text" : ')[-1][:-2].strip("\"")
-                    if result != "":
-                        result_queue.put(censor_text(get_number(result)))
+            # this if statement is looking to see if there is silence
+            if recognizer.AcceptWaveform(data):  
+                result = recognizer.Result().split('"text" : ')[-1][:-2].strip("\"")
+                # check to see if there is no silence
+                if result != "":
+                    result_queue.put(censor_text(get_number(result)))
         except queue.Empty:
-            continue
+            pass
 
 
 def continuous_transcription():
@@ -127,12 +127,16 @@ def continuous_transcription():
     Main function to capture audio and recognize speech in real-time
     """
 
-    with sd.RawInputStream(samplerate=SAMPLE_RATE,blocksize=BLOCK_SIZE,channels=CHANNELS,dtype="int16",callback=callback, latency="high"):
+    # This will make sure that all audio recorded will be at 16kHz and each chunk has 1024 frames
+    with sd.RawInputStream(samplerate=SAMPLE_RATE,blocksize=CHUNK_SIZE,channels=CHANNELS,dtype="int16",callback=callback,latency="high"):
         threading.Thread(target=transcribe_audio, daemon=True).start()
 
         while True:
             try:
+                # timeout = 2 delays so that I can exit program
                 current_text = result_queue.get(timeout=2)
+
+                # continous return of audio data as an iterator
                 yield current_text
             except queue.Empty:
                 pass
