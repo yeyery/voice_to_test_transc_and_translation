@@ -1,7 +1,8 @@
 import sounddevice as sd
 import queue
 import vosk
-from transformers import MarianMTModel, MarianTokenizer
+# used for the language translation
+# from transformers import MarianMTModel, MarianTokenizer
 import threading
 from word2number import w2n
 
