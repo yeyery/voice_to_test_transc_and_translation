@@ -86,7 +86,6 @@ def main() -> None:
     image_label = tk.Label(image_frame, image=logo_tk, bg='#111827')
     image_label.pack()
 
-    # gets the values coming from the generator function (iterator)
     generator = continuous_transcription()
 
     root.after(1000, update_translation, generator, text_widget, root)
