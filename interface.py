@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from Vosk_to_text import continuous_transcription
 
+
 def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
     """
     This function retreive the last transcription from Vosk_to_text.py and
@@ -10,7 +11,7 @@ def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
 
     # generator returns and iterator so use next to get the latest transcription
     transcriptions = next(generator)
-   
+
     # end-1c means read to the end and remove a chracter. the \n is the last character
 
     # TODO: This was going to be for the timeout function
@@ -27,6 +28,7 @@ def update_translation(generator, text_widget: tk.Text, root: tk.Tk) -> None:
     # rerun this function after 1 second
     root.after(1000, update_translation, generator, text_widget, root)
 
+
 def main() -> None:
 
     # initialize tkinter object
@@ -42,7 +44,7 @@ def main() -> None:
     root.attributes("-fullscreen", False)
 
     # make the demensions of your app the same as the demensions of your screen
-    root.geometry('%dx%d' % (1480,320))
+    root.geometry('%dx%d' % (1480, 320))
 
     # make background black
     root.configure(background='#111827')
@@ -64,7 +66,7 @@ def main() -> None:
         wrap="word",
     )
 
-    #remove cursor
+    # remove cursor
     text_widget.config(cursor="none")
     # configure a bold option
     text_widget.tag_configure("bold", font="Helvetica 40 bold")
@@ -84,12 +86,14 @@ def main() -> None:
     image_label = tk.Label(image_frame, image=logo_tk, bg='#111827')
     image_label.pack()
 
+    # gets the values coming from the generator function (iterator)
     generator = continuous_transcription()
 
     root.after(1000, update_translation, generator, text_widget, root)
 
     # run the app
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
